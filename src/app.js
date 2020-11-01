@@ -2,10 +2,13 @@ const path = require('path')
 const express = require("express")
 const hbs = require("hbs")
 require('./db/mongoose')
+const bodyParser = require("body-parser")
 const Blog = require('./models/blog')
 
 const app = express()
 const port = process.env.PORT || 3000
+
+app.use(bodyParser.urlencoded({extended: true}))
 
 const publicDirectoryPath = path.join(__dirname, '../public')
 // const viewsPath = path.join(__dirname, '../templates/views')
