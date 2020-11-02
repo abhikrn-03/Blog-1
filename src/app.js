@@ -1,37 +1,91 @@
 const path = require('path')
 const express = require("express")
-const hbs = require("hbs")
-require('./db/mongoose')
 const bodyParser = require("body-parser")
+// const hbs = require("hbs")
+const ejs = require('ejs')
+require('./db/mongoose')
+const _ = require("lodash")
 const Blog = require('./models/blog')
 
 const app = express()
 const port = process.env.PORT || 3000
+app.use(express.json())
 
 app.use(bodyParser.urlencoded({extended: true}))
 
 const publicDirectoryPath = path.join(__dirname, '../public')
 // const viewsPath = path.join(__dirname, '../templates/views')
-const partialsPath = path.join(__dirname, '../templates/partials')
+// const partialsPath = path.join(__dirname, '../templates/partials')
 
-app.set('view engine', 'hbs')
+app.set('view engine', 'ejs')
+// app.set('view engine', 'hbs')
 // app.set('views', 'viewsPath')
-hbs.registerPartials(partialsPath)
+// hbs.registerPartials(partialsPath)
 
 app.use(express.static(publicDirectoryPath))
 
-app.get('', (req, res) => {
-    res.render('index', {
-        title: 'Blogs',
-        name: 'Not Anyone'
-    })
+let posts = []
+
+app.get('', async (req, res) => {
+
+    try {
+        await res.render('index', {
+            title: 'Your personal diary',
+            name: 'Not Anyone'
+        }) 
+    } catch (e) {
+        res.status(500).send(e)
+    }
 })
 
-app.get('/compose', (req, res) => {
-    res.render('compose', {
-      title: 'Blogging',
-      name: 'Not Anyone'  
+app.get('/home', async (req, res) => {
+
+    try {
+        posts = await Blog.find({})
+        await res.render('home', {
+        title: 'Blogs',
+        name: 'Not Anyone',
+        posts: posts
+        })
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+app.get('/compose', async (req, res) => {
+    
+    try {
+        await res.render('compose', {
+        title: 'Blogging',
+        name: 'Not Anyone'  
     })
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+app.get('/about', async (req, res) => {
+    
+    try {
+        await res.render('about', {
+        title: 'About',
+        name: 'Not Anyone'  
+    })
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+app.get('/contact', async (req, res) => {
+    
+    try {
+        await res.render('contact', {
+        title: 'Contact',
+        name: 'Not Anyone'  
+    })
+    } catch (e) {
+        res.status(500).send(e)
+    }
 })
 
 app.post("/compose", async (req, res) => {
@@ -42,25 +96,37 @@ app.post("/compose", async (req, res) => {
 
   try {
         await blog.save()
-        res.status(201).redirect("/")
+        posts = await Blog.find({})
+        res.status(201).redirect("/home")
     } catch (e) {
         res.status(400).send(e)
     }
 
 })
 
-// app.post("/compose", function(req, res){
-//   const post = {
-//     title: req.body.postTitle,
-//     content: req.body.postBody
-//   };
+app.get("/blogs/:blogName", async (req, res) => {
+  const requestedTitle = _.lowerCase(req.params.blogName);
 
-//   console.log(post);
+  try {
+    posts.forEach( async (blog) => {
+    const storedTitle = _.lowerCase(blog.title);
 
-// //   res.redirect("/");
-
-// });
-
+    try {
+        if (storedTitle === requestedTitle) {
+            await res.render("post", {
+            title: blog.title,
+            body: blog.body,
+            name: 'Not Anyone'
+            })
+        }
+    } catch (e) {
+        res.status(500).send(e)
+    }
+  })
+  } catch (e) {
+    res.status(404).send(e)
+  }
+})
 
 app.listen(port, () => {
     console.log('Server running on port ' + port);
