@@ -1,23 +1,10 @@
 const express = require('express')
 const Blog = require('../models/blog')
+const auth = require('../middleware/auth')
 const router = new express.Router()
 const _ = require('lodash')
 
 let posts = []
-
-router.get('/home', async (req, res) => {
-
-    try{
-        posts = await Blog.find({})
-        await res.render('home', {
-            title: 'Blogs',
-            name: 'Not Anyone',
-            posts: posts
-        })
-    } catch(e){
-        res.status(500).send(e)
-    }
-})
 
 router.get('/compose', async (req, res) => {
     try {
