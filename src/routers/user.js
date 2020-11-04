@@ -47,7 +47,9 @@ router.post('/users/signUp', async (req, res) => {
             res.status(400).send(err)
         }
         else {
-            res.status(201).send()
+            passport.authenticate('local')(req, res, () => {
+                res.redirect('/home')
+            })
         }
     })
 })
