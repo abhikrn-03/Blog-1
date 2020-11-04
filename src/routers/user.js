@@ -1,7 +1,9 @@
 const express = require('express')
+const passport = require('passport')
 const User = require('../models/user')
 const Blog = require('../models/blog')
 const auth = require('../middleware/auth')
+const connectEnsureLogin = require('connect-ensure-login')
 const router = new express.Router()
 
 let posts = []
@@ -9,10 +11,10 @@ let posts = []
 router.get('/home', auth, async (req, res) => {
 
     try{
-        posts = await Blog.find({})
+        posts = await Blog.find({username: req.session.passport.user})
         await res.render('home', {
             title: 'Blogs',
-            name: req.user,
+            name: req.session.passport.user,
             posts: posts
         })
     } catch(e){
@@ -33,33 +35,39 @@ router.get('/users/login', async (req, res) => {
 
 router.post('/users/signUp', async (req, res) => {
     const user = new User({
-        'name': req.body.userName,
-        'email': req.body.userEmail,
-        'password': req.body.userPassword,
-        'gender': req.body.userGender,
-        'penName': req.body.userPen,
-        'age': req.body.userAge
+        'name': req.body.name,
+        'email': req.body.email,
+        'gender': req.body.gender,
+        'username': req.body.username,
+        'age': req.body.age
     })
 
-    try {
-        await user.save()
-        const token = await user.generateAuthToken()
-        // res.status(201).send({ user, token} )
-        res.status(201).redirect('/home')
-    } catch (e) {
-        res.status(400).send(e)
-    }
+    User.register(user, req.body.password, (err, user) => {
+        if (err) {
+            res.status(400).send(err)
+        }
+        else {
+            res.status(201).send()
+        }
+    })
 })
 
-router.post('/users/signIn', async (req, res) => {
-    try {
-        const user = await User.findByCredentials(req.body.loginEmail, req.body.loginPassword)
-        const token = await user.generateAuthToken()
-        // res.send({ user, token })
-        res.redirect('/home')
-    } catch (e) {
-        res.status(400).send()
-    }
+router.post('/users/signIn', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            return next(err)
+        }
+        if (!user) {
+            throw new Error('username or password incorrect')
+        }
+
+        req.logIn(user, function(err){
+            if (err) {
+                return next(err)
+            }
+            return res.redirect('/home')
+        })
+    })(req, res, next)
 })
 
 module.exports = router

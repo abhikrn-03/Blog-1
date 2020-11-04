@@ -6,7 +6,7 @@ const _ = require('lodash')
 
 let posts = []
 
-router.get('/compose', async (req, res) => {
+router.get('/compose', auth, async (req, res) => {
     try {
         await res.render('compose', {
             title: 'Blogging',
@@ -17,10 +17,11 @@ router.get('/compose', async (req, res) => {
     }
 })
 
-router.post('/compose', async (req, res) => {
+router.post('/compose', auth, async (req, res) => {
     const blog = new Blog({
         'title': req.body.postTitle,
-        'body': req.body.postBody
+        'body': req.body.postBody,
+        'username': req.session.passport.user
     })
 
     try {
