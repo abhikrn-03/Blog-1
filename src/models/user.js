@@ -1,22 +1,12 @@
-const mongoose = require('mongoose');
-const validator = require('validator');
-const bcrypt = require('bcryptjs')
+const mongoose = require('mongoose')
+const validator = require('validator')
+const passportLocalMongoose = require('passport-local-mongoose')
+
 const userSchema = mongoose.Schema({
     name: {
         type: String,
         required: true,
         trim: true
-    },
-    password: {
-        type: String,
-        required: true,
-        minlength: 7,
-        trim: true,
-        validate(value) {
-            if (value.toLowerCase().includes('password')){
-                throw new Error('Cannot include the word "password"')
-            }
-        }
     },
     email: {
         type: String,
@@ -30,7 +20,7 @@ const userSchema = mongoose.Schema({
             }
         }
     },
-    penName: {
+    username: {
         type: String,
         trim: true,
         required: true,
@@ -50,30 +40,42 @@ const userSchema = mongoose.Schema({
     }
 })
 
-userSchema.statics.findByCredentials = async (email, password) => {
-    const user = await User.findOne({ email })
+// userSchema.methods.generateAuthToken = async function() {
+//     const user = this
+//     const token = jwt.sign({ _id: user._id.toString() }, 'myblogwebsite')
 
-    if (!user) {
-        throw new Error('Unable to login')
-    }
+//     user.tokens = user.tokens.concat({ token })
+//     await user.save()
 
-    const isMatch = await bcrypt.compare(password, user.password)
+//     return token
+// }
 
-    if (!isMatch) {
-        throw new Error('Unable to login')
-    }
+// userSchema.statics.findByCredentials = async (email, password) => {
+//     const user = await User.findOne({ email })
 
-    return user
-}
+//     if (!user) {
+//         throw new Error('Unable to login')
+//     }
 
-userSchema.pre('save', async function(next) {
-    const user = this
-    if (user.isModified('password')){
-        user.password = await bcrypt.hash(user.password, 8)
-    }
+//     const isMatch = await bcrypt.compare(password, user.password)
 
-    next()
-})
+//     if (!isMatch) {
+//         throw new Error('Unable to login')
+//     }
+
+//     return user
+// }
+
+// userSchema.pre('save', async function(next) {
+//     const user = this
+//     if (user.isModified('password')){
+//         user.password = await bcrypt.hash(user.password, 8)
+//     }
+
+//     next()
+// })
+
+userSchema.plugin(passportLocalMongoose)
 
 const User = mongoose.model('User', userSchema)
 
