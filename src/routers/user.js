@@ -72,4 +72,10 @@ router.post('/users/signIn', (req, res, next) => {
     })(req, res, next)
 })
 
+router.get('/users/logout', (req, res) => {
+    delete req.session['passport']
+    console.log(req.session)
+    res.redirect('/')
+})
+
 module.exports = router
