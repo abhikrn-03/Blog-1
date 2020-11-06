@@ -1,13 +1,12 @@
 const express = require('express')
 const Blog = require('../models/blog')
-const auth = require('../middleware/auth')
 const connectEnsureLogin = require('connect-ensure-login')
 const router = new express.Router()
 const _ = require('lodash')
 
 let blogs = []
 
-router.get('/compose', auth, async (req, res) => {
+router.get('/compose', connectEnsureLogin.ensureLoggedIn('/users/login'), async (req, res) => {
     try {
         await res.render('compose', {
             title: 'Blogging',
@@ -18,12 +17,12 @@ router.get('/compose', auth, async (req, res) => {
     }
 })
 
-router.get('/community', auth, async (req, res) => {
+router.get('/community', async (req, res) => {
     try {
         blogs = await Blog.find({})
         await res.render('community', {
             title: 'They are something more than just blogs..',
-            name: req.session.passport.user,
+            name: "Not Anyone",
             posts: blogs
         })
     } catch(e) {
@@ -31,11 +30,11 @@ router.get('/community', auth, async (req, res) => {
     }
 })
 
-router.post('/compose', auth, async (req, res) => {
+router.post('/compose', connectEnsureLogin.ensureLoggedIn('/users/login'), async (req, res) => {
     const blog = new Blog({
         'title': req.body.postTitle,
         'body': req.body.postBody,
-        'username': req.session.passport.user
+        'email': req.user.email
     })
 
     try {
