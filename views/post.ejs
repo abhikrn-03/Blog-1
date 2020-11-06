@@ -2,5 +2,7 @@
 
   <h1><%=title%></h1>
   <p><%=body%></p>
+  <a href="/compose/<%= _id %>">Edit Blog</a>
+  <a href="/delete/<%= _id %>">Delete Blog</a>
 
 <%- include("partials/footer"); -%>

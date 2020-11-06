@@ -31,22 +31,26 @@ app.use(userRouter)
 app.use(blogRouter)
 
 passport.use('local-signup', new LocalStrategy({
-    usernameField: 'email',
+    usernameField: 'penName',
     passwordField: 'password',
     passReqToCallback: true
 },
-(req, email, password, done) => {
+(req, penName, password, done) => {
     process.nextTick(() => {
-        User.findOne({'email': email}, (err, user) => {
+        User.findOne({penName: penName}, async (err, user) => {
             if (err){
                 return done(err);
-            } else {
+            }
+            if (user){
+                return done (new Error('There already exists an account with this Pen Name.'))
+            } 
+            else {
                 var newUser = new User();
-                newUser.email = email;
+                newUser.email = req.body.email;
                 newUser.password = newUser.generateHash(password);
                 newUser.age = req.body.age
                 newUser.gender = req.body.gender
-                newUser.penName = req.body.penName
+                newUser.penName = penName
                 newUser.name = req.body.name
                 newUser.save(function(err) {
                     if (err)
@@ -62,18 +66,18 @@ passport.use('local-signup', new LocalStrategy({
 }));
 
 passport.use('local-login', new LocalStrategy({
-    usernameField : 'email',
+    usernameField : 'penName',
     passwordField : 'password',
 
 },
-(email, password, done) => {
-    User.findOne({ 'email' :  email }, (err, user) => {
+(penName, password, done) => {
+    User.findOne({ penName : penName }, (err, user) => {
         if (err)
             return done(err);
         if (!user)
-            return done(null, false, {message: 'Incorrect Username of Password'} );
+            return done(null, false, {message: 'Incorrect Pen Name or Password'} );
         if (!user.validPassword(password))
-            return done(null, false, {message: 'Incorrect Username or Password'});
+            return done(null, false, {message: 'Incorrect Pen Name or Password'});
         return done(null, user);
     });
 }));
@@ -86,11 +90,15 @@ passport.use('google-auth', new GoogleStrategy({
 (accessToken, refreshToken, profile, done) => {
     User.findOne({
         'google_id': profile.id
-    }, (err, user) => {
+    }, async (err, user) => {
         if (err) {
             return done(err)
         }
         if (!user) {
+            existing = await User.findOne({email: profile.emails[0].value})
+            if(existing){
+                return done(new Error("There already exists an account with this email."))
+            }
             const newUser = new User({
                 'google_id': profile.id,
                 'name': profile.displayName,
