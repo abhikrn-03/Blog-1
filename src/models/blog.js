@@ -10,7 +10,7 @@ const Blog = mongoose.model('Blog', {
         required: true,
         trim: true
     },
-    username: {
+    email: {
         type: String,
         required: true
     }
