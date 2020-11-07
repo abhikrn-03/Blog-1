@@ -6,17 +6,39 @@ const connectEnsureLogin = require('connect-ensure-login')
 const _ = require('lodash')
 const router = new express.Router()
 
-let posts = []
+let blogs = []
 
-router.get('/home/:penName', async (req, res) => {
+router.get('/profile/:penName', async (req, res) => {
+    const penName = req.params.penName
+    blogs = await Blog.find({penName: penName})
     try{
-        penName = req.params.penName
-        posts = await Blog.find({penName: penName})
-        await res.render('home', {
+        if (req.user==undefined && (!User.findOne({penName})).penName==false){
+            await res.render('profile', {
             title: 'Blogs',
             name: penName,
-            posts: posts
-        })
+            blogs
+            })
+        }
+        else if (req.user.penName==penName){
+            await res.render('home', {
+            title: 'Blogs',
+            name: penName,
+            blogs
+            })
+        }
+        else if (req.user.penName!=penName){
+            await res.render('profile', {
+            title: 'Blogs',
+            name: penName,
+            blogs
+            }) 
+        }
+        else {
+            await res.render('404', {
+            errorMessage: "Sorry, we could not the Blogger you've requested",
+            name: 'Not Anyone' 
+            })
+        }
     } catch(e){
         res.status(500).send(e)
     }
@@ -33,13 +55,17 @@ router.get('/users/login', async (req, res) => {
     }
 })
 
-router.post('/users/signUp', passport.authenticate('local-signup', {}), (req, res) => {
-    res.redirect('/home/'+req.user.penName)
+router.post('/users/signUp', passport.authenticate('local-signup', {}), async (req, res) => {
+    try {
+        res.redirect('/profile/'+req.user.penName)
+    } catch (e) {
+        res.status(400).send(e)
+    }
 })
 
 router.post('/users/signIn', passport.authenticate('local-login', {}), (req, res) => {
-    res.redirect('/home/' + req.user.penName)
-});
+    res.redirect('/profile/' + req.user.penName)
+})
 
 router.get('/users/google', passport.authenticate('google-auth', {
     scope: ['https://www.googleapis.com/auth/plus.login', 'https://www.googleapis.com/auth/userinfo.email']
@@ -48,7 +74,7 @@ router.get('/users/google', passport.authenticate('google-auth', {
 router.get('/auth/google/BlogBower', passport.authenticate('google-auth', {
 }), (req, res) => {
     if(req.user.penName){
-        return res.redirect('/home/' + req.user.penName)
+        return res.redirect('/profile/' + req.user.penName)
     }
     res.redirect('/users/setupProfile')
 })
@@ -61,7 +87,8 @@ router.get('/users/logout', connectEnsureLogin.ensureLoggedIn('/users/login'), (
 router.get('/users/setupProfile', connectEnsureLogin.ensureLoggedIn('/users/login'), async (req, res) => {
     try {
         await res.render('setupProfile', {
-            displayName: req.user.name
+            displayName: req.user.name,
+            message: 'A blogger should have a unique Pen Name'
         })
     } catch (e) {
         res.status(400).send(e)
@@ -77,8 +104,14 @@ router.post('/users/setupProfile', connectEnsureLogin.ensureLoggedIn('/users/log
         if(req.body.gender){
             await User.findByIdAndUpdate(req.user._id, { gender: req.body.gender })
         }
-        return res.redirect('/home/' + req.body.penName)
+        return res.redirect('/profile/' + req.body.penName)
     } catch(e) {
+        if (e.codeName == 'DuplicateKey'){
+            await res.render('setupProfile', {
+            displayName: req.user.name,
+            message: 'This Pen Name already exists, try a different Pen Name'
+            })
+        }
         res.status(400).send(e)
     }
 })
@@ -98,14 +131,17 @@ router.get('/users/editProfile', connectEnsureLogin.ensureLoggedIn('/users/login
 })
 
 router.get('/blogs/:blogName', async (req, res) => {
+    let flag = false
+    blogs = await Blog.find({})
     const requestedTitle = _.lowerCase(req.params.blogName)
 
     try {
-        posts.forEach(async (blog) => {
+        blogs.forEach(async (blog) => {
             const storedTitle = _.lowerCase(blog.title)
 
             try {
                 if (storedTitle === requestedTitle) {
+                    flag = true
                     await res.render('post', {
                         title: blog.title,
                         body: blog.body,
@@ -117,6 +153,12 @@ router.get('/blogs/:blogName', async (req, res) => {
                 res.status(500).send(e)
             }
         })
+        if (!flag){
+            await res.render('404', {
+            errorMessage: "Sorry, we could not find the Blog you've requested.",
+            name: 'Not Anyone'
+            })
+        }
     } catch (e) {
         res.status(404).send(e)
     }

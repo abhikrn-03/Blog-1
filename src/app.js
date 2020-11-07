@@ -44,6 +44,10 @@ passport.use('local-signup', new LocalStrategy({
             if (user){
                 return done (new Error('There already exists an account with this Pen Name.'))
             } 
+            const existing = await User.findOne({email: req.body.email})
+            if (existing){
+                return done (new Error('There already exists an account with this Email ID.'))
+            }
             else {
                 var newUser = new User();
                 newUser.email = req.body.email;
@@ -95,7 +99,7 @@ passport.use('google-auth', new GoogleStrategy({
             return done(err)
         }
         if (!user) {
-            existing = await User.findOne({email: profile.emails[0].value})
+            const existing = await User.findOne({email: profile.emails[0].value})
             if(existing){
                 return done(new Error("There already exists an account with this email."))
             }

@@ -2,8 +2,11 @@
 <h1>We need just a few more details to get your profile setup.</h1>
 
 <form action="/users/setupProfile" method="post">
-    <input type="text" name="penName" placeholder="Pen Name" />
-    <input type="text" name="age" placeholder="Age" />
-    <input type="text" name="gender" placeholder="M/F/O" />
+    <input type="text" name="penName" placeholder="Pen Name" required/><br>
+    <p>Cannot be changed later</p>
+    <input type="text" name="age" placeholder="Age" /><br>
+    <input type="text" name="gender" placeholder="M/F/O" /><br>
+
+    <p><%=message%></p>
     <button>Submit</button>
 </form>

@@ -10,7 +10,7 @@ router.get('/compose', connectEnsureLogin.ensureLoggedIn('/users/login'), async 
     try {
         await res.render('compose', {
             title: 'Blogging',
-            name: 'Not Anyone',
+            name: res.user.penName,
             blogTitle: null,
             blogBody: null
         })
@@ -24,15 +24,15 @@ router.get('/community', async (req, res) => {
         blogs = await Blog.find({})
         await res.render('community', {
             title: 'They are something more than just blogs..',
-            name: "Not Anyone",
-            posts: blogs
+            name: 'Not Anyone',
+            blogs
         })
     } catch(e) {
         res.status(500).send(e)
     }
 })
 
-router.post('/compose/', connectEnsureLogin.ensureLoggedIn('/users/login'), async (req, res) => {
+router.post('/compose', connectEnsureLogin.ensureLoggedIn('/users/login'), async (req, res) => {
     const blog = new Blog({
         'title': req.body.postTitle,
         'body': req.body.postBody,
@@ -42,18 +42,18 @@ router.post('/compose/', connectEnsureLogin.ensureLoggedIn('/users/login'), asyn
     try {
         await blog.save()
         blogs = await Blog.find({})
-        res.status(201).redirect('/home/'+req.user.penName)
+        res.status(201).redirect('/profile/'+req.user.penName)
     } catch (e) {
         res.status(400).send(e)
     }
 })
 
-router.get('/compose/:id', connectEnsureLogin.ensureLoggedIn('/users/login'), async (req, res) => {
+router.get('/edit/:id', connectEnsureLogin.ensureLoggedIn('/users/login'), async (req, res) => {
     try {
         _id = req.params.id
         blog = await Blog.findById(_id)
-        var blogTitle = blog.title
-        var blogBody = blog.body
+        const blogTitle = blog.title
+        const blogBody = blog.body
         await Blog.deleteOne({_id: _id})
         await res.render('compose', {
             'title': 'Blogging',
@@ -70,13 +70,15 @@ router.get('/delete/:id', connectEnsureLogin.ensureLoggedIn('/users/login'), asy
     try{
         _id = req.params.id
         await Blog.deleteOne({_id: _id})
-        res.redirect('/home/'+req.user.penName)
+        res.redirect('/profile/'+req.user.penName)
     } catch (e) {
         res.status(400).send(e)
     }
 })
 
 router.get('/blogs/:blogName', async (req, res) => {
+    let flag = false
+    blogs = await Blog.find({})
     const requestedTitle = _.lowerCase(req.params.blogName)
 
     try {
@@ -85,6 +87,7 @@ router.get('/blogs/:blogName', async (req, res) => {
 
             try {
                 if (storedTitle === requestedTitle) {
+                    flag = true
                     await res.render('post', {
                         title: blog.title,
                         body: blog.body,
@@ -96,6 +99,12 @@ router.get('/blogs/:blogName', async (req, res) => {
                 res.status(500).send(e)
             }
         })
+        if (!flag){
+            await res.render('404', {
+            errorMessage: "Sorry, we could not find the Blog you've requested.",
+            name: 'Not Anyone'
+            })
+        }
     } catch (e) {
         res.status(404).send(e)
     }
