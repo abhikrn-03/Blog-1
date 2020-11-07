@@ -10,7 +10,6 @@ router.get('/compose', connectEnsureLogin.ensureLoggedIn('/users/login'), async 
     try {
         await res.render('compose', {
             title: 'Blogging',
-            name: req.user.penName,
             blogTitle: null,
             blogBody: null,
             penName: req.user.penName,
