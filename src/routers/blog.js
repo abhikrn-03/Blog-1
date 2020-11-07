@@ -12,7 +12,10 @@ router.get('/compose', connectEnsureLogin.ensureLoggedIn('/users/login'), async 
             title: 'Blogging',
             name: req.user.penName,
             blogTitle: null,
-            blogBody: null
+            blogBody: null,
+            penName: req.user.penName,
+            name: req.user.name,
+            email: req.user.email
         })
     } catch (e) {
         res.status(500).send(e)
@@ -22,11 +25,24 @@ router.get('/compose', connectEnsureLogin.ensureLoggedIn('/users/login'), async 
 router.get('/community', async (req, res) => {
     try {
         blogs = await Blog.find({})
-        await res.render('community', {
+        if (req.user){
+            await res.render('community', {
             title: 'They are something more than just blogs..',
-            name: 'Not Anyone',
+            penName: req.user.penName,
+            name: req.user.name,
+            email: req.user.email,
             blogs
         })
+        }
+        else {
+            await res.render('community', {
+            title: 'They are something more than just blogs..',
+            name: null,
+            penName: null,
+            email: null,
+            blogs
+        })
+        } 
     } catch(e) {
         res.status(500).send(e)
     }
@@ -88,12 +104,39 @@ router.get('/blogs/:blogName', async (req, res) => {
             try {
                 if (storedTitle === requestedTitle) {
                     flag = true
-                    await res.render('post', {
+                    if (req.user==undefined){
+                        await res.render('post', {
                         title: blog.title,
                         body: blog.body,
-                        name: 'Not Anyone',
-                        _id: blog._id
-                    })
+                        _id: blog._id,
+                        penName: null,
+                        name: null,
+                        email: null,
+                        Flag: false
+                        })
+                    }
+                    else if ((req.user)&&(req.user.penName==blog.penName)){
+                        await res.render('post', {
+                        title: blog.title,
+                        body: blog.body,
+                        _id: blog._id,
+                        penName: req.user.penName,
+                        name: req.user.name,
+                        email: req.user.email,
+                        Flag: true
+                        })
+                    }
+                    else {
+                        await res.render('post', {
+                        title: blog.title,
+                        body: blog.body,
+                        _id: blog._id,
+                        penName: req.user.penName,
+                        name: req.user.name,
+                        email: req.user.email,
+                        Flag: false
+                        })
+                    }
                 }
             } catch (e) {
                 res.status(500).send(e)

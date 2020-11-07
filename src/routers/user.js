@@ -16,21 +16,27 @@ router.get('/profile/:penName', async (req, res) => {
         if (req.user==undefined && (user)){
             await res.render('profile', {
             title: 'Blogs',
-            name: penName,
+            name: null,
+            penName: null,
+            email: null,
             blogs
             })
         }
         else if ((req.user)&& (req.user.penName==penName) && (user)){
             await res.render('home', {
             title: 'Blogs',
-            name: penName,
+            penName: req.user.penName,
+            name: req.user.name,
+            email: req.user.email,
             blogs
             })
         }
         else if ((req.user)&&(req.user.penName!=penName) && (user)){
             await res.render('profile', {
             title: 'Blogs',
-            name: penName,
+            penName: req.user.penName,
+            name: req.user.name,
+            email: req.user.email,
             blogs
             }) 
         }
@@ -130,41 +136,6 @@ router.get('/users/editProfile', connectEnsureLogin.ensureLoggedIn('/users/login
         res.status(400).send(e)
     }
 })
-
-router.get('/blogs/:blogName', async (req, res) => {
-    let flag = false
-    blogs = await Blog.find({})
-    const requestedTitle = _.lowerCase(req.params.blogName)
-
-    try {
-        blogs.forEach(async (blog) => {
-            const storedTitle = _.lowerCase(blog.title)
-
-            try {
-                if (storedTitle === requestedTitle) {
-                    flag = true
-                    await res.render('post', {
-                        title: blog.title,
-                        body: blog.body,
-                        name: 'Not Anyone',
-                        _id: blog._id
-                    })
-                }
-            } catch (e) {
-                res.status(500).send(e)
-            }
-        })
-        if (!flag){
-            await res.render('404', {
-            errorMessage: "Sorry, we could not find the Blog you've requested.",
-            name: 'Not Anyone'
-            })
-        }
-    } catch (e) {
-        res.status(404).send(e)
-    }
-})
-
 
 router.post('/users/editProfile', connectEnsureLogin.ensureLoggedIn('/users/login'), async(req, res) => {
     _id = req.user._id

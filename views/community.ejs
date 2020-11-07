@@ -43,10 +43,12 @@
       <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
           <li class="sidebar-nav"><a href="/compose" class="pub-btn btn"> Create A New Blog</a> </li>
-          <li class="sidebar-nav"><a href="/profile/<%=name%>"> Dashboard</a> </li>
+          <% if (name!='Not Anyone'){%>
+            <li class="sidebar-nav"><a href="/profile/<%=name%>">Dashboard</a></li>
+          <%}%>
           <li class="sidebar-nav"><a href="/community"> Community</a> </li>
-          <li class="sidebar-nav"><a href="#">History</a> </li>
-          <li class="sidebar-nav"><a href="#">Follow US</a> </li>
+          <li class="sidebar-nav"><a href="/">History</a> </li>
+          <li class="sidebar-nav"><a href="/contact">Follow US</a> </li>
         </ul>
 
       </div>
@@ -65,7 +67,9 @@
         <p class="navbar-brand">B L O G B O W E R</p>
       </div>
         <ul class="nav navbar-nav navbar-right">
-          <li id="home" class="nav-item"><a class="nav-link" href="/profile/<%=name%>">HOME</a></li>
+          <% if (name!='Not Anyone'){%>
+            <li id="home" class="nav-item"><a class="nav-link" href="/profile/<%=name%>">HOME</a></li>
+          <%}%>
           <li id="about" class="nav-item"><a  class="nav-link" href="/about">ABOUT US</a></li>
           <li id="contact" class="nav-item"><a class="nav-link" href="/contact">CONTACT US</a></li>
           <li id="compose" class="nav-item"><a class="nav-link" href="/compose">CREATE</a></li>
@@ -111,8 +115,8 @@
       </div>
 
 
-
-    <div id="sidebar-wrapper-rt">
+    <%- include("partials/sidebar"); -%>
+    <!-- <div id="sidebar-wrapper-rt">
       <ul class="sidebar-nav-rt">
         <li class="sidebar-nav-rt">USER</li>
         <li class="sidebar-nav-rt">User Picture </li>
@@ -123,11 +127,11 @@
         <li class="sidebar-nav-rt btn pub-btn"><a href="/users/logout"> sign out</a> </li>
       </ul>
 
-    </div>
+    </div> -->
 
 </div>
 </div>
 
 <!-- Menu Toggle JS-->
 <script src="/js/sidebar.js"></script>
-<!--<%- include("partials/footer1"); -%> -->
+<!-- <%- include("partials/footer1"); -%> -->

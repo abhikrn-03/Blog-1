@@ -135,10 +135,22 @@ let posts = []
 app.get('', async (req, res) => {
 
     try {
-        await res.render('index', {
-            title: 'Your personal diary',
-            name: 'Not Anyone'
-        }) 
+        if (req.user){
+            await res.render('index', {
+            title: 'Your Personal Diary',
+            penName: req.user.penName,
+            name: req.user.name,
+            email: req.user.email
+            })
+        }
+        else {
+            await res.render('index', {
+            title: 'Your Personal Diary',
+            name: null,
+            penName: null,
+            email: null
+            })
+        }
     } catch (e) {
         res.status(500).send(e)
     }

@@ -1,8 +1,8 @@
 body{
-	background: #77b0b1;
+	background: #eae7dc;;
 }
 .logey {
-	background: #77b0b1;
+	background: #eae7dc;;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -19,7 +19,7 @@ body{
     width:0;
     height:1080px;
     overflow-y:hidden;
-    background: linear-gradient(to right, #2f4454, #142430);
+    background: linear-gradient(to left, #af423b,#9b3a33);
     opacity: 0.9;
     transition: all 0.2s ease-out;
 }
@@ -71,15 +71,15 @@ body{
     color:#ddd;
 }
 
-.sidebar-nav li a:hover{
+/* .sidebar-nav li a:hover{
     background:#424242;
     transition: all 0.6s ease-out;
-}
+} */
 
-.sidebar-nav li .btn:hover{
+/* .sidebar-nav li .btn:hover{
     background-color: #ff0040;;
 
-}
+} */
 
 
 
@@ -95,7 +95,7 @@ body{
     width:0;
     height:1080px;
     overflow-y:hidden;
-    background: linear-gradient(to left, #2f4454, #142430);
+    background: linear-gradient(to left, #af423b,#9b3a33);
     opacity: 0.9;
     transition: all 0.2s ease-out;
 }
@@ -133,29 +133,29 @@ body{
     color:#ddd;
 }
 
-.sidebar-nav-rt li a:hover{
+/* .sidebar-nav-rt li a:hover{
     background:#757474;
     transition: all 0.6s ease-out;
-}
+} */
 
-.sidebar-nav-rt li .btn:hover{
+/* .sidebar-nav-rt li .btn:hover{
     background-color: #ff0040;;
 
-}
+} */
 
 
 /* Blogs Design */
 
 .blogss{
     padding: 60px;
-    background:#77b0b1;
+    background: #eae7dc;;
 }
 
 .blog1{
     padding: 30px 20px 20px 30px;
     border-radius: 20px;
-    box-shadow: 13px 13px 20px #609697,
-    -13px -13px 20px #82b8b9;
+    box-shadow: 13px 13px 20px#d6d3ca,
+    -13px -13px 20px #f7f4ec;
 }
 
 .blogg1{
