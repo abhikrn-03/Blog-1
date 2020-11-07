@@ -71,10 +71,12 @@ router.get('/edit/:id', connectEnsureLogin.ensureLoggedIn('/users/login'), async
         const blogBody = blog.body
         await Blog.deleteOne({_id: _id})
         await res.render('compose', {
-            'title': 'Blogging',
-            'name': 'Not Anyone',
-            'blogTitle': blogTitle,
-            'blogBody': blogBody
+            title: 'Blogging',
+            blogTitle: blogTitle,
+            blogBody: blogBody,
+            penName: req.user.penName,
+            name: req.user.name,
+            email: req.user.email
         })
     } catch (e) {
         res.status(400).send(e)
