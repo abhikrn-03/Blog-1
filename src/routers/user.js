@@ -12,21 +12,22 @@ router.get('/profile/:penName', async (req, res) => {
     const penName = req.params.penName
     blogs = await Blog.find({penName: penName})
     try{
-        if (req.user==undefined && (!User.findOne({penName})).penName==false){
+        const user = await User.findOne({penName})
+        if (req.user==undefined && (user)){
             await res.render('profile', {
             title: 'Blogs',
             name: penName,
             blogs
             })
         }
-        else if (req.user.penName==penName){
+        else if ((req.user)&& (req.user.penName==penName) && (user)){
             await res.render('home', {
             title: 'Blogs',
             name: penName,
             blogs
             })
         }
-        else if (req.user.penName!=penName){
+        else if ((req.user)&&(req.user.penName!=penName) && (user)){
             await res.render('profile', {
             title: 'Blogs',
             name: penName,
@@ -35,7 +36,7 @@ router.get('/profile/:penName', async (req, res) => {
         }
         else {
             await res.render('404', {
-            errorMessage: "Sorry, we could not the Blogger you've requested",
+            errorMessage: "Sorry, we could not find the Blogger you've requested",
             name: 'Not Anyone' 
             })
         }
