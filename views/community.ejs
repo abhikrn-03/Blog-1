@@ -42,10 +42,14 @@
       <!-- Sidebar Nav-->
       <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
-          <li class="sidebar-nav"><a href="/compose" class="pub-btn btn"> Create A New Blog</a> </li>
-          <% if (name!='Not Anyone'){%>
-            <li class="sidebar-nav"><a href="/profile/<%=penName%>">Dashboard</a></li>
-          <%}%>
+          <li class="sidebar-nav">
+            <% if (name!=null){%>
+            <li class="sidebar-nav"><a href="/compose" class="pub-btn btn"> Create A New Blog</a> </li>
+            <li class="sidebar-nav"><a href="/profile/<%=penName%>"> Dashboard</a> </li>
+            <%} else {%>
+            <li class="sidebar-nav"><a href="/users/login" class="pub-btn btn"> Create A New Blog</a> </li>
+            <li class="sidebar-nav"><a href="/users/login"> Dashboard</a> </li>
+            <%}%>
           <li class="sidebar-nav"><a href="/community"> Community</a> </li>
           <li class="sidebar-nav"><a href="/">History</a> </li>
           <li class="sidebar-nav"><a href="/contact">Follow US</a> </li>
@@ -67,7 +71,7 @@
         <p class="navbar-brand">B L O G B O W E R</p>
       </div>
         <ul class="nav navbar-nav navbar-right">
-          <% if (name!='Not Anyone'){%>
+          <% if (name!=null){%>
             <li id="home" class="nav-item"><a class="nav-link" href="/profile/<%=penName%>">HOME</a></li>
           <%}%>
           <li id="about" class="nav-item"><a  class="nav-link" href="/about">ABOUT US</a></li>
